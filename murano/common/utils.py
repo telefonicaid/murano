@@ -56,7 +56,6 @@ class TraverseHelper(object):
         :raise: ValueError if object is malformed
         """
         queue = collections.deque(filter(lambda x: x, path.split('/')))
-
         while len(queue):
             path = queue.popleft()
 
