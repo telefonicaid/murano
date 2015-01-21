@@ -18,6 +18,7 @@ from webob import exc
 
 from murano.common import utils
 from murano.db.services import environments as envs
+from murano.db.services import templates
 
 
 class CoreServices(object):
@@ -49,7 +50,6 @@ class CoreServices(object):
 
         if env_description is None:
             return None
-
         if not 'services' in env_description:
             return []
 
@@ -61,6 +61,76 @@ class CoreServices(object):
                 srv['?']['status'] = get_status(environment_id, srv['?']['id'])
 
         return result
+
+    @staticmethod
+    def get_template_data(template_id, path):
+        """It obtains the data for the template. It includes
+        all the services. In case the path includes information
+        such as the template_id, the information provided will
+        be related to the entity specified in the path
+
+        :param template_id: The template_id to obtain the data
+        :param path: Id of service for which we checking status.
+        :return: The template description
+        """
+        temp_description = \
+            templates.TemplateServices.\
+            get_template_description(template_id, False)
+
+        if temp_description is None:
+            return None
+
+        if not 'services' in temp_description:
+            return []
+
+        result = utils.TraverseHelper.get(path, temp_description)
+        if result is None:
+            raise ValueError("The path is not include in template description")
+
+        return result
+
+    @staticmethod
+    def post_template_data(template_id, data, path):
+        get_description = templates.TemplateServices.get_template_description
+        save_description = templates.TemplateServices.\
+            save_template_description
+
+        temp_description = get_description(template_id)
+        if temp_description is None:
+            raise exc.HTTPMethodNotAllowed
+
+        if not 'services' in temp_description:
+            temp_description['services'] = []
+
+        if path == '/services':
+            if isinstance(data, types.ListType):
+                utils.TraverseHelper.extend(path, data, temp_description)
+            else:
+                utils.TraverseHelper.insert(path, data, temp_description)
+        save_description(temp_description)
+        return data
+
+    @staticmethod
+    def post_application_data(template_id, data, path):
+        get_description = templates.TemplateServices.get_template_description
+        save_description = templates.TemplateServices.\
+            save_template_description
+
+        temp_description = get_description(template_id, False)
+        if temp_description is None:
+            raise exc.HTTPMethodNotAllowed
+        if not 'services' in temp_description:
+            temp_description['services'] = []
+
+        if path == '/services':
+            if isinstance(data, types.ListType):
+                utils.TraverseHelper.extend(path, data, temp_description)
+            else:
+                utils.TraverseHelper.insert(path, data, temp_description)
+
+        save_description(temp_description, template_id)
+
+        return data
 
     @staticmethod
     def post_data(environment_id, session_id, data, path):
@@ -109,3 +179,14 @@ class CoreServices(object):
 
         utils.TraverseHelper.remove(path, env_description)
         save_description(session_id, env_description)
+
+    @staticmethod
+    def delete_template_data(template_id, path):
+        get_description = templates.TemplateServices.get_template_description
+        save_description = templates.TemplateServices.\
+            save_template_description
+
+        tmp_description = get_description(template_id, False)
+
+        utils.TraverseHelper.remove(path, tmp_description)
+        save_description(tmp_description, template_id)
