@@ -1,3 +1,4 @@
+
 #    Copyright (c) 2015 Telefonica I+D.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -111,12 +112,9 @@ class Controller(object):
     def delete(self, request, template_id, path):
         LOG.debug('Applications:Put <TempId: {0}, '
                   'Path: {1}>'.format(template_id, path))
-
         delete_data = core_services.CoreServices.delete_template_data
-
         try:
             delete_data(template_id, path)
-
         except (KeyError, ValueError):
             raise exc.HTTPNotFound
 

@@ -1,4 +1,5 @@
 # Copyright (c) 2015 Telefonica I+D.
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -351,6 +352,7 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         req = self._post('/templates/%s/services' % uuids[-1],
             json.dumps(body))
         result = req.get_response(self.api)
+
         self.assertEqual(200, result.status_code)
         self.assertEqual(services, json.loads(result.body))
 
