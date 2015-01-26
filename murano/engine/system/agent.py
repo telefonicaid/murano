@@ -206,14 +206,24 @@ class Agent(murano_object.MuranoObject):
         for name, script in template.get('Scripts', {}).items():
             if 'EntryPoint' not in script:
                 raise ValueError('No entry point in script ' + name)
-            script['EntryPoint'] = self._place_file(
-                scripts_folder, script['EntryPoint'],
-                template, files, resources)
+            if script['Type'] == 'Application':
+                script['EntryPoint'] = self._place_file(
+                    scripts_folder, script['EntryPoint'],
+                    template, files, resources)
             if 'Files' in script:
-                for i in range(0, len(script['Files'])):
-                    script['Files'][i] = self._place_file(
-                        scripts_folder, script['Files'][i],
-                        template, files, resources)
+                for file in script['Files']:
+                    try:
+                        if file.values()[0]['Type'] == 'Downloadable':
+                            template['Files'][file.keys()[0]] = {
+                            'Name': name,
+                            'URL': file.values()[0]['URL'],
+                            'Type': 'Downloadable'}
+                        else:
+                            file = self._place_file(
+                            scripts_folder, file,
+                            template, files, resources)
+                    except:
+                        pass
 
         return template
 
