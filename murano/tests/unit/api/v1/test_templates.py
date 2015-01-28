@@ -26,6 +26,8 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
     def setUp(self):
         super(TestTemplateApi, self).setUp()
         self.controller = templates.Controller()
+        self.uuids = ['template_id']
+        self.mock_uuid = self._stub_uuid(self.uuids)
 
     def test_list_empty_templates(self):
         """Check that with no templates an empty list is returned."""
@@ -50,17 +52,13 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
 
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
-
         expected = {'tenant_id': self.tenant,
                     'id': 'template_id',
                     'name': 'mytemp',
                     'networking': {},
                     'version': 0,
                     'created': timeutils.isotime(fake_now)[:-1],
-                    'updated': timeutils.isotime(fake_now)[:-1],
-                    '?': {'id': uuids[0], 'type': 'io.murano.Template'}}
+                    'updated': timeutils.isotime(fake_now)[:-1]}
 
         body = {'name': 'mytemp'}
         req = self._post('/templates', json.dumps(body))
@@ -72,7 +70,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         self.expect_policy_check('list_templates')
 
         req = self._get('/templates')
-        del expected['?']
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
         self.assertEqual({'templates': [expected]}, json.loads(result.body))
@@ -81,13 +78,12 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         # Reset the policy expectation
         self.expect_policy_check('show_template',
-                                 {'template_id': uuids[-1]})
+                                 {'template_id': self.uuids[0]})
 
-        req = self._get('/templates/%s' % uuids[-1])
+        req = self._get('/templates/%s' % self.uuids[0])
         result = req.get_response(self.api)
 
         self.assertEqual(expected, json.loads(result.body))
-        self.assertEqual(2, mock_uuid.call_count)
 
     def test_illegal_template_name_create(self):
         """Check that an illegal temp name results in an HTTPClientError."""
@@ -226,17 +222,13 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
 
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
-
         expected = {'tenant_id': self.tenant,
                     'id': 'template_id',
                     'name': 'template_name',
                     'networking': {},
                     'version': 0,
                     'created': timeutils.isotime(fake_now)[:-1],
-                    'updated': timeutils.isotime(fake_now)[:-1],
-                    '?': {'id': uuids[0], 'type': 'io.murano.Template'}}
+                    'updated': timeutils.isotime(fake_now)[:-1]}
 
         services = [
             {
@@ -300,19 +292,16 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         req = self._get('/templates')
         result = req.get_response(self.api)
         del expected['services']
-        del expected['?']
         self.assertEqual(200, result.status_code)
         self.assertEqual({'templates': [expected]}, json.loads(result.body))
 
         # Reset the policy expectation
         self.expect_policy_check('show_template',
-                                 {'template_id': uuids[-1]})
+                                 {'template_id': self.uuids[0]})
         expected['services'] = services
-        req = self._get('/templates/%s' % uuids[-1])
+        req = self._get('/templates/%s' % self.uuids[0])
         result = req.get_response(self.api)
-
         self.assertEqual(expected, json.loads(result.body))
-        self.assertEqual(2, mock_uuid.call_count)
 
     def test_add_application_to_template(self):
         """Create an template, test template.show()."""
@@ -324,9 +313,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
-
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
 
         services = [
             {
@@ -361,14 +347,14 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         self.assertEqual(200, result.status_code)
 
         body = services
-        req = self._post('/templates/%s/services' % uuids[-1],
+        req = self._post('/templates/%s/services' % self.uuids[0],
             json.dumps(body))
         result = req.get_response(self.api)
 
         self.assertEqual(200, result.status_code)
         self.assertEqual(services, json.loads(result.body))
 
-        req = self._get('/templates/%s/services' % uuids[-1])
+        req = self._get('/templates/%s/services' % self.uuids[0])
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
         self.assertEqual(1, len(json.loads(result.body)))
@@ -388,16 +374,15 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
             }
         ]
 
-        req = self._post('/templates/%s/services' % uuids[-1],
+        req = self._post('/templates/%s/services' % self.uuids[0],
             json.dumps(service_no_instance))
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._get('/templates/%s/services' % uuids[-1])
+        req = self._get('/templates/%s/services' % self.uuids[0])
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
         self.assertEqual(2, len(json.loads(result.body)))
-        self.assertEqual(2, mock_uuid.call_count)
 
     def test_delete_application_in_template(self):
         """Create an template, test template.show()."""
@@ -409,9 +394,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
-
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
 
         body = {
             "name": "mytemplate",
@@ -434,24 +416,23 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._get('/templates/%s/services' % uuids[-1])
+        req = self._get('/templates/%s/services' % self.uuids[0])
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
         self.assertEqual(1, len(json.loads(result.body)))
 
         service_id = '54cea43d-5970-4c73-b9ac-fea656f3c722'
-        req = self._get('/templates/' + uuids[-1] +
+        req = self._get('/templates/' + self.uuids[-1] +
                         '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._delete('/templates/' + uuids[-1] +
+        req = self._delete('/templates/' + self.uuids[-1] +
                            '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._get('/templates/' + uuids[-1] +
+        req = self._get('/templates/' + self.uuids[-1] +
                         '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(404, result.status_code)
-        self.assertEqual(2, mock_uuid.call_count)

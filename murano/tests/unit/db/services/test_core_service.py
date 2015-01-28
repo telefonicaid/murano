@@ -22,11 +22,7 @@ def get_template_empty_mock():
     return {
         "tenant_id": "tenant_id",
         "name": "henar",
-        'id': 'template_id',
-        "?": {
-            "type": "io.murano.Template",
-            "id": "temp_object_id"
-        }
+        'id': 'template_id'
     }
 
 
@@ -69,10 +65,7 @@ def get_template_services_mock():
         ],
         "tenant_id": "tenant_id",
         "name": "template_name",
-        'id': 'template_id',
-        "?": {
-            "type": "io.murano.Template",
-            "id": "temp_object_id"}
+        'id': 'template_id'
     }
     return template
 

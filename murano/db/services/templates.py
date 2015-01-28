@@ -41,14 +41,8 @@ class TemplateServices(object):
            :return: Created Template
         """
 
-        objects = {
-            'type': 'io.murano.Template',
-            'id': uuidutils.generate_uuid(),
-        }
         template_params['id'] = uuidutils.generate_uuid()
         template_params['tenant_id'] = tenant_id
-        template_params['?'] = objects
-
         template = models.Template()
         template.update(template_params)
 

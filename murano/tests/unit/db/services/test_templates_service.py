@@ -12,6 +12,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import mock
 from murano.db.services import templates as templates
 from murano.tests.unit import base
@@ -21,11 +22,7 @@ def get_template_empty_mock():
     return {
         "tenant_id": "tenand_id",
         "name": "mytemplate",
-        'id': 'template_id',
-        "?": {
-            "type": "io.murano.Template",
-            "id": "temp_object_id"
-        }
+        'id': 'template_id'
     }
 
 
@@ -68,11 +65,7 @@ def get_template_services_mock():
         ],
         "tenant_id": "tenand_id",
         "name": "mytemplate",
-        'id': 'template_id',
-        "?": {
-            "type": "io.murano.Template",
-            "id": "temp_object_id"
-        }
+        'id': 'template_id'
     }
     return template
 
@@ -161,6 +154,8 @@ class TestTemplateServices(base.MuranoWithDBTestCase):
     def setUp(self):
         super(TestTemplateServices, self).setUp()
         self.template_services = templates.TemplateServices
+        self.uuids = ['template_id']
+        self.mock_uuid = self._stub_uuid(self.uuids)
         self.addCleanup(mock.patch.stopall)
 
     def test_create_template(self):
@@ -168,11 +163,8 @@ class TestTemplateServices(base.MuranoWithDBTestCase):
         body = {
             "name": "mytemplate"
         }
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
         template_des = self.template_services.create(body, 'tenand_id')
         self.assertEqual(template_des.description, get_template_empty_mock())
-        self.assertEqual(2, mock_uuid.call_count)
 
     def test_get_empty_template(self):
         """Check obtaining information about a template without services."""
@@ -183,13 +175,9 @@ class TestTemplateServices(base.MuranoWithDBTestCase):
 
     def test_get_template_services(self):
         """Check obtaining information about a template with services."""
-        uuids = ('temp_object_id', 'template_id')
-        mock_uuid = self._stub_uuid(uuids)
         template = self.template_services.create(get_template_services_mock(),
                                                  'tenand_id')
         self.assertEqual(template.description, get_template_services_mock())
-        self.assertEqual(2, mock_uuid.call_count)
-
         template_des = \
             self.template_services.get_template_description("template_id")
         self.assertEqual(template_des, get_template_services_mock())

@@ -12,10 +12,11 @@
 # limitations under the License.
 
 """
-Change type of description field in package table.
+Create the template table for the environment
+template functionality.
 
-Revision ID: 004
-Revises: table package
+Revision ID: 005
+Revises: table template
 
 """
 
