@@ -76,13 +76,11 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         expected['services'] = []
 
-        # Reset the policy expectation
         self.expect_policy_check('show_template',
                                  {'template_id': self.uuids[0]})
 
         req = self._get('/templates/%s' % self.uuids[0])
         result = req.get_response(self.api)
-
         self.assertEqual(expected, json.loads(result.body))
 
     def test_illegal_template_name_create(self):
@@ -221,7 +219,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
-
         expected = {'tenant_id': self.tenant,
                     'id': 'template_id',
                     'name': 'template_name',
@@ -297,7 +294,7 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         # Reset the policy expectation
         self.expect_policy_check('show_template',
-                                 {'template_id': self.uuids[0]})
+                     {'template_id': self.uuids[0]})
         expected['services'] = services
         req = self._get('/templates/%s' % self.uuids[0])
         result = req.get_response(self.api)
@@ -313,7 +310,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         fake_now = timeutils.utcnow()
         timeutils.utcnow.override_time = fake_now
-
         services = [
             {
                 "instance": {
@@ -353,7 +349,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         self.assertEqual(200, result.status_code)
         self.assertEqual(services, json.loads(result.body))
-
         req = self._get('/templates/%s/services' % self.uuids[0])
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
@@ -422,17 +417,17 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
         self.assertEqual(1, len(json.loads(result.body)))
 
         service_id = '54cea43d-5970-4c73-b9ac-fea656f3c722'
-        req = self._get('/templates/' + self.uuids[-1] +
+        req = self._get('/templates/' + self.uuids[0] +
                         '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._delete('/templates/' + self.uuids[-1] +
+        req = self._delete('/templates/' + self.uuids[0] +
                            '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(200, result.status_code)
 
-        req = self._get('/templates/' + self.uuids[-1] +
+        req = self._get('/templates/' + self.uuids[0] +
                         '/services/' + service_id)
         result = req.get_response(self.api)
         self.assertEqual(404, result.status_code)

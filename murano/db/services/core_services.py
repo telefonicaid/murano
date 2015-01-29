@@ -91,6 +91,13 @@ class CoreServices(object):
 
     @staticmethod
     def post_template_data(template_id, data, path):
+        """It stores the template data inside the template
+        description.
+        :param template_id: The template_id to obtain the data
+        :param data: the template description
+        :param path: Id of service for which we checking status.
+        :return: The template description
+        """
         get_description = templates.TemplateServices.get_template_description
         save_description = templates.TemplateServices.\
             save_template_description
@@ -112,6 +119,13 @@ class CoreServices(object):
 
     @staticmethod
     def post_application_data(template_id, data, path):
+        """It stores the application data inside the template
+        description.
+        :param template_id: The template_id to obtain the data
+        :param data: the template description
+        :param path: Id of service for which we checking status.
+        :return: The template description
+        """
         get_description = templates.TemplateServices.get_template_description
         save_description = templates.TemplateServices.\
             save_template_description
@@ -182,6 +196,10 @@ class CoreServices(object):
 
     @staticmethod
     def delete_template_data(template_id, path):
+        """It deletes a template.
+        :param template_id: The template_id to be deleted.
+        :param path: The path to check.
+        """
         get_description = templates.TemplateServices.get_template_description
         save_description = templates.TemplateServices.\
             save_template_description
