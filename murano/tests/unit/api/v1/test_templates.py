@@ -78,7 +78,6 @@ class TestTemplateApi(tb.ControllerTest, tb.MuranoApiTestCase):
 
         self.expect_policy_check('show_template',
                                  {'template_id': self.uuids[0]})
-
         req = self._get('/templates/%s' % self.uuids[0])
         result = req.get_response(self.api)
         self.assertEqual(expected, json.loads(result.body))
